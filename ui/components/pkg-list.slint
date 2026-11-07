@@ -1,0 +1,19 @@
+component PkgButton inherits Rectangle {
+    HorizontalLayout {
+        Text {
+            text: "PkgName";
+        }
+
+        TouchArea {
+            clicked => {}
+        }
+    }
+}
+
+export component PkgList inherits Rectangle {
+    VerticalLayout {
+        HorizontalLayout {
+            //PkgButton {}
+        }
+    }
+}

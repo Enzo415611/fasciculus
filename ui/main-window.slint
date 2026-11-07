@@ -1,0 +1,54 @@
+import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { UiState, UiEvents } from "globals.slint";
+export * from "globals.slint";
+
+export component TitleBar inherits WindowMoveArea {
+    height: 24px;
+    HorizontalLayout {
+        Text {
+            vertical-alignment: TextVerticalAlignment.center;
+            horizontal-stretch: 1;
+            text: "fasciculus";
+        }
+        HorizontalLayout {
+            Button {
+                colorize-icon: true;
+                icon: @image-url("icons/minus-small.png");
+                icon-size: 15px;
+                height: 24px;
+                clicked => {
+                    UiEvents.minimize();
+                }
+            }
+            Button {
+                colorize-icon: true;
+                icon: @image-url("icons/square.png");
+                icon-size: 15px;
+                height: 24px;
+                clicked => {
+                    UiEvents.maximize();
+                }
+            }
+            Button {
+                colorize-icon: true;
+                icon: @image-url("icons/cross-small.png");
+                icon-size: 15px;
+                height: 24px;
+                clicked => {
+                    UiEvents.quit();
+                }
+            }
+        }
+    }
+}
+
+export component MainWindow inherits Window {
+    preferred-width: 1000px;
+    preferred-height: 900px;
+    no-frame: false;
+    resize-border-width: 3px;
+    VerticalBox {
+        TitleBar {}
+        Button {}
+    }
+}
