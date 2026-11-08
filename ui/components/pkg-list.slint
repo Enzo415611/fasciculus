@@ -1,19 +1,27 @@
+import { ListView } from "std-widgets.slint";
+import { UiState } from "../main-window.slint";
+import { Package } from "../globals.slint";
 component PkgButton inherits Rectangle {
+    in property <Package> pkg;
+    callback clicked;
     HorizontalLayout {
         Text {
-            text: "PkgName";
+            text: pkg.name;
         }
 
         TouchArea {
-            clicked => {}
+            clicked => {clicked()}
         }
     }
 }
 
 export component PkgList inherits Rectangle {
-    VerticalLayout {
-        HorizontalLayout {
-            //PkgButton {}
+    ListView {
+        for pkg in UiState.pkgs: PkgButton {
+            pkg: pkg;
+            clicked => {
+
+            }
         }
     }
 }

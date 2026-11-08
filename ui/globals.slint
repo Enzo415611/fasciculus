@@ -1,8 +1,14 @@
+export struct Package {
+    name: string
+}
+
 export global UiEvents {
     pure callback quit;
     pure callback minimize;
     pure callback maximize();
+    callback init-packages();
 }
 
 export global UiState {
+    in-out property <[Package]> pkgs;
 }
