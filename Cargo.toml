@@ -7,6 +7,7 @@ edition = "2024"
 alpm = "5.0.2"
 anyhow = "1.0.104"
 freedesktop-icons = "0.4.0"
+open = "5.4.5"
 slint = "1.18.1"
 
 [build-dependencies]

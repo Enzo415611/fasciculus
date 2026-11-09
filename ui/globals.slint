@@ -1,14 +1,25 @@
-export struct Package {
-    name: string
+export struct SPackage {
+    name: string,
+    icon: image,
+    desc: string,
+    url: string,
+    size: int,
+    depends: [string],
+    db: string
 }
 
 export global UiEvents {
     pure callback quit;
     pure callback minimize;
     pure callback maximize();
+    pure callback open-link(string);
     callback init-packages();
+    callback search-pkg(string);
 }
 
 export global UiState {
-    in-out property <[Package]> pkgs;
+    in-out property <[SPackage]> pkgs;
+    in-out property <string> search-pkg-by-name;
+    in-out property <SPackage> pkg-selected;
+
 }

@@ -1,15 +1,30 @@
-import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { Button, VerticalBox, HorizontalBox, LineEdit } from "std-widgets.slint";
+import { PkgList } from "components/pkg-list.slint";
 import { UiState, UiEvents } from "globals.slint";
 export * from "globals.slint";
 
 export component TitleBar inherits WindowMoveArea {
     height: 24px;
     HorizontalLayout {
+        spacing: 10px;
         Text {
             vertical-alignment: TextVerticalAlignment.center;
-            horizontal-stretch: 1;
+            horizontal-stretch: 0;
             text: "fasciculus";
         }
+
+        LineEdit {
+            placeholder-text: "Package Name";
+            horizontal-stretch: 1;
+            height: 24px;
+            accepted(text) => {
+                UiEvents.search-pkg(text);
+            }
+            edited(name) => {
+                UiState.search-pkg-by-name = name;
+            }
+        }
+
         HorizontalLayout {
             Button {
                 colorize-icon: true;
@@ -47,8 +62,9 @@ export component MainWindow inherits Window {
     preferred-height: 900px;
     no-frame: false;
     resize-border-width: 3px;
+    default-font-size: 16px;
     VerticalBox {
         TitleBar {}
-        Button {}
+        PkgList {}
     }
 }

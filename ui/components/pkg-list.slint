@@ -1,27 +1,77 @@
-import { ListView } from "std-widgets.slint";
-import { UiState } from "../main-window.slint";
-import { Package } from "../globals.slint";
-component PkgButton inherits Rectangle {
-    in property <Package> pkg;
-    callback clicked;
-    HorizontalLayout {
-        Text {
-            text: pkg.name;
-        }
+import { ListView, VerticalBox, Button } from "std-widgets.slint";
+import { SPackage, UiState, UiEvents } from "../globals.slint";
 
-        TouchArea {
-            clicked => {clicked()}
+component PkgInfo inherits FlexboxLayout {
+    flex-direction: FlexboxLayoutDirection.column;
+    HorizontalLayout {
+        Button {
+            icon: @image-url("../icons/cross-small.png");
+            colorize-icon: true;
+            clicked => {
+                UiState.pkg-selected.name = "";
+            }
+        }
+        Button {
+            horizontal-stretch: 1;
+            text: UiState.pkg-selected.name;
+            icon: UiState.pkg-selected.icon;
+            icon-size: 40px;
+        }
+    }
+    Text {
+        text: UiState.pkg-selected.desc;
+    }
+
+    Text {
+        text: "Size: " + UiState.pkg-selected.size;
+    }
+    Text {
+        text: "DataBase: " + UiState.pkg-selected.db;
+    }
+    StyledText {
+        text: @markdown("[\{UiState.pkg-selected.url}](\{UiState.pkg-selected.url})");
+        link-clicked(link) => {
+            UiEvents.open-link(link)
+        }
+    }
+    VerticalLayout {
+        padding-top: 10px;
+        Text {
+            text: "Package dependencies";
+        }
+        ListView {
+            height: 200px;
+            for dep in UiState.pkg-selected.depends: Text {
+                text: dep;
+            }
+        }
+    }
+
+
+}
+
+component PkgButton inherits HorizontalLayout {
+    alignment: LayoutAlignment.start;
+    in property <SPackage> pkg;
+    callback clicked;
+    Button {
+        text: pkg.name;
+        icon: pkg.icon;
+        icon-size: 40px;
+        clicked => {
+            UiState.pkg-selected = pkg;
         }
     }
 }
 
 export component PkgList inherits Rectangle {
-    ListView {
-        for pkg in UiState.pkgs: PkgButton {
-            pkg: pkg;
-            clicked => {
-
+    HorizontalLayout {
+        ListView {
+            for pkg in UiState.pkgs: PkgButton {
+                pkg: pkg;
             }
         }
+
+        if UiState.pkg-selected.name.character-count >=1 : PkgInfo {}
     }
 }
