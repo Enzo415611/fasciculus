@@ -1,41 +1,40 @@
-use std::path::Path;
-
 use alpm::{Alpm, SigLevel};
+use size::Size;
+use slint::{Image, ModelRc, SharedString, ToSharedString, VecModel};
 
-#[derive(Debug, Clone)]
-pub struct Package {
-    pub name: String,
-    pub icon: Option<slint::Image>,
-    pub desc: Option<String>,
-    pub url: Option<String>,
-    pub size: i64,
-    pub depends: Vec<String>,
-    pub db: Option<String>,
-}
+use crate::SPackage;
 
-pub fn get_pkg_by_name(package_name: &str) -> Option<Package> {
+pub fn get_pkg_by_name(package_name: &str, default_icon: Image) -> Option<SPackage> {
     if let Ok(alpm) = sync_alpm_dbs() {
         let syncdbs = alpm.syncdbs();
         for db in syncdbs.iter() {
             if let Ok(pkg) = db.pkg(package_name) {
-                let builder = freedesktop_icons::lookup(pkg.name()).find();
+                let builder = freedesktop_icons::lookup(pkg.name()).with_size(1).find();
                 let image = if let Some(path) = builder {
-                    Some(slint::Image::load_from_path(&path).unwrap())
+                    slint::Image::load_from_path(&path).unwrap()
                 } else {
-                    None
+                    // let path =
+                    //     Path::new(env!("CARGO_MANIFEST_DIR")).join("/ui/icons/cross-small.png");
+                    // println!(env!("CARGO_MANIFEST_DIR"));
+                    // slint::Image::load_from_path(&path).unwrap()
+                    default_icon
                 };
-                return Some(Package {
-                    name: pkg.name().to_string(),
+                return Some(SPackage {
+                    name: pkg.name().to_shared_string(),
                     icon: image,
-                    desc: pkg.desc().map(|desc| desc.to_string()),
-                    url: pkg.url().map(|url| url.to_string()),
-                    size: pkg.size(),
-                    depends: pkg
-                        .depends()
-                        .into_iter()
-                        .map(|d| d.name().to_string())
-                        .collect(),
-                    db: pkg.db().map(|db| db.name().to_string()),
+                    desc: pkg.desc().unwrap_or_default().to_shared_string(),
+                    url: pkg.url().unwrap_or_default().to_shared_string(),
+                    size: Size::from_bytes(pkg.size())
+                        .format()
+                        .with_base(size::Base::Base10)
+                        .to_shared_string(),
+                    depends: ModelRc::new(VecModel::from(
+                        pkg.depends()
+                            .into_iter()
+                            .map(|d| d.name().to_shared_string())
+                            .collect::<Vec<SharedString>>(),
+                    )),
+                    db: pkg.db().map(|db| db.name().to_shared_string()).unwrap(),
                 });
             }
         }

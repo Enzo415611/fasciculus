@@ -3,7 +3,7 @@ export struct SPackage {
     icon: image,
     desc: string,
     url: string,
-    size: int,
+    size: string,
     depends: [string],
     db: string
 }
@@ -21,5 +21,5 @@ export global UiState {
     in-out property <[SPackage]> pkgs;
     in-out property <string> search-pkg-by-name;
     in-out property <SPackage> pkg-selected;
-
+    in property <image> default-icon: @image-url("icons/cross-small.png");
 }

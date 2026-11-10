@@ -1,77 +1,99 @@
-import { ListView, VerticalBox, Button } from "std-widgets.slint";
+import { ListView, VerticalBox, Button, HorizontalBox } from "std-widgets.slint";
 import { SPackage, UiState, UiEvents } from "../globals.slint";
 
-component PkgInfo inherits FlexboxLayout {
-    flex-direction: FlexboxLayoutDirection.column;
-    HorizontalLayout {
-        Button {
-            icon: @image-url("../icons/cross-small.png");
-            colorize-icon: true;
-            clicked => {
-                UiState.pkg-selected.name = "";
+component PkgButton inherits Button {
+    in property <SPackage> pkg;
+    callback click();
+    text: pkg.name;
+    icon: pkg.icon;
+    icon-size: 40px;
+    height: 55px;
+    clicked => {
+        click()
+    }
+}
+
+component PkgInfo inherits Rectangle {
+    in-out property <bool> show-dependen: false;
+    vertical-stretch: 2;
+    VerticalLayout {
+        vertical-stretch: 2;
+        alignment: LayoutAlignment.start;
+        HorizontalLayout {
+            height: 55px;
+            spacing: 15px;
+            PkgButton {
+                pkg: UiState.pkg-selected;
+            }
+            Rectangle {horizontal-stretch: 1;}
+            Button {
+                height: 25px;
+                icon: @image-url("../icons/cross-small.png");
+                colorize-icon: true;
+                icon-size: 15px;
+                clicked => {
+                    UiState.pkg-selected.name = "";
+                }
             }
         }
-        Button {
-            horizontal-stretch: 1;
-            text: UiState.pkg-selected.name;
-            icon: UiState.pkg-selected.icon;
-            icon-size: 40px;
-        }
-    }
-    Text {
-        text: UiState.pkg-selected.desc;
-    }
-
-    Text {
-        text: "Size: " + UiState.pkg-selected.size;
-    }
-    Text {
-        text: "DataBase: " + UiState.pkg-selected.db;
-    }
-    StyledText {
-        text: @markdown("[\{UiState.pkg-selected.url}](\{UiState.pkg-selected.url})");
-        link-clicked(link) => {
-            UiEvents.open-link(link)
-        }
-    }
-    VerticalLayout {
-        padding-top: 10px;
         Text {
-            text: "Package dependencies";
+            text: UiState.pkg-selected.desc;
         }
-        ListView {
-            height: 200px;
+
+        Text {
+            text: "Size: " + UiState.pkg-selected.size;
+        }
+        Text {
+            text: "Repo: " + UiState.pkg-selected.db;
+        }
+        StyledText {
+            text: @markdown("[\{UiState.pkg-selected.url}](\{UiState.pkg-selected.url})");
+            link-clicked(link) => {
+                UiEvents.open-link(link)
+            }
+        }
+        HorizontalLayout {
+            alignment: LayoutAlignment.start;
+            Button {
+                text: "Depends";
+                icon: root.show-dependen
+                    ? @image-url("../icons/angle-small-up.png")
+                    : @image-url("../icons/angle-small-down.png");
+                colorize-icon: true;
+                height: 30px;
+                icon-size: 15px;
+                clicked => {
+                    root.show-dependen = !root.show-dependen;
+                }
+            }
+        }
+
+        if root.show-dependen: ListView {
+            min-height: 200px;
             for dep in UiState.pkg-selected.depends: Text {
                 text: dep;
             }
         }
     }
-
-
-}
-
-component PkgButton inherits HorizontalLayout {
-    alignment: LayoutAlignment.start;
-    in property <SPackage> pkg;
-    callback clicked;
-    Button {
-        text: pkg.name;
-        icon: pkg.icon;
-        icon-size: 40px;
-        clicked => {
-            UiState.pkg-selected = pkg;
-        }
-    }
 }
 
 export component PkgList inherits Rectangle {
-    HorizontalLayout {
-        ListView {
-            for pkg in UiState.pkgs: PkgButton {
-                pkg: pkg;
+    GridLayout {
+        spacing: 10px;
+        Row {
+            ListView {
+                horizontal-stretch: 1;
+                vertical-stretch: 1;
+                for pkg in UiState.pkgs: PkgButton {
+                    pkg: pkg;
+                    click => {
+                        UiState.pkg-selected = pkg;
+                    }
+                }
+            }
+            if UiState.pkg-selected.name.character-count >=1 : PkgInfo {
+                horizontal-stretch: 2;
             }
         }
-
-        if UiState.pkg-selected.name.character-count >=1 : PkgInfo {}
     }
 }
