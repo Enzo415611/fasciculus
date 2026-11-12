@@ -4,6 +4,16 @@ use slint::{Image, ModelRc, SharedString, ToSharedString, VecModel};
 
 use crate::SPackage;
 
+pub fn pkg_is_installed(name: &str) -> bool {
+    match Alpm::new("/", "/var/lib/pacman/") {
+        Ok(handle) => match handle.localdb().pkg(name) {
+            Ok(_) => true,
+            Err(_) => false,
+        },
+        Err(_) => false,
+    }
+}
+
 pub fn get_pkg_by_name(package_name: &str, default_icon: Image) -> Option<SPackage> {
     if let Ok(alpm) = sync_alpm_dbs() {
         let syncdbs = alpm.syncdbs();
@@ -13,10 +23,6 @@ pub fn get_pkg_by_name(package_name: &str, default_icon: Image) -> Option<SPacka
                 let image = if let Some(path) = builder {
                     slint::Image::load_from_path(&path).unwrap()
                 } else {
-                    // let path =
-                    //     Path::new(env!("CARGO_MANIFEST_DIR")).join("/ui/icons/cross-small.png");
-                    // println!(env!("CARGO_MANIFEST_DIR"));
-                    // slint::Image::load_from_path(&path).unwrap()
                     default_icon
                 };
                 return Some(SPackage {

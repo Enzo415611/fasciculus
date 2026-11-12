@@ -1,6 +1,6 @@
-use slint::{ComponentHandle, ModelRc, ToSharedString, VecModel, Weak};
+use slint::{ComponentHandle, ModelRc, VecModel, Weak};
 
-use crate::{MainWindow, SPackage, UiEvents, UiState, alpm::get_pkg_by_name};
+use crate::{MainWindow, UiEvents, UiState, alpm::get_pkg_by_name};
 
 pub fn ui_events(weak: Weak<MainWindow>) -> anyhow::Result<()> {
     let main_window = weak.unwrap();
